@@ -1,0 +1,43 @@
+.import {
+    display: flex;
+ 
+    &-info {
+        p {
+            margin-top: 10px;
+            
+        }
+    }
+   
+  
+    &-action{
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    &-search{
+        width: 500px;
+    }
+    &-img {
+        height: 200px;
+        object-fit: contain;
+        width: 340px;
+        margin-right: 20px;
+    }
+    &-container {
+    }
+
+    &-list {
+    }
+}
+
+.title{
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.import-wrapper{
+    display: flex;
+    justify-content: space-between;
+}
