@@ -11,6 +11,25 @@ class AuthService {
             return null;
         }
     };
+
+    signup = async (user) => {
+        try {
+            const url= `${BaseUrl}/signup`
+            return await Http.post(url, user);
+        } catch (e) {
+            console.log('login error', e);
+            return null;
+        }
+    };
+    getAllUser = async () => {
+        try {
+            const url= `${BaseUrl}/users`
+            return await Http.get(url);
+        } catch (e) {
+            console.log('get all user error', e);
+            return null;
+        }
+    };
 }
 
 

@@ -10,6 +10,7 @@ const { Option } = Select;
 const { Search } = Input;
 const ImportIngredients = () => {
     const [importsIngredient, setImportIngredients] = useState([]);
+    const [filteredImportsIngredient, setFilteredImportIngredients] = useState([]);
     const { currentUser, setCurrentUser } = useContext(AuthContext);
     const [units, setUnits] = useState({});
     const [ingredients, setIngredients] = useState([]);
@@ -34,10 +35,10 @@ const ImportIngredients = () => {
     const [form] = Form.useForm();
     const [takeForm] = Form.useForm();
     const onSearch = (value, _e, info) => {
-        // const filteredRecipe = recipes.filter((recipe) => {
-        //     return recipe.recipe_name.includes(value);
-        // });
-        // setFilteredRecipes(filteredRecipe);
+        const filteredRecipe = importsIngredient.filter((import_ingre) => {
+            return import_ingre.ingredient.ingredient_name.includes(value);
+        });
+        setFilteredImportIngredients(filteredRecipe);
     };
     const handleOpen = async () => {
         setOpen(true);
@@ -95,6 +96,7 @@ const ImportIngredients = () => {
         const response = await ImportService.getAllImportIngredient();
         console.log(response);
         setImportIngredients(response);
+        setFilteredImportIngredients(response);
     };
 
     useEffect(() => {
@@ -106,13 +108,13 @@ const ImportIngredients = () => {
             <h3>材料バッチの完全なリスト</h3>
 
             <div className='import-action'>
-                <Search className='import-search' placeholder='Enter ingredient name ...' onSearch={onSearch} />
+                <Search className='import-search' placeholder='検索する食材を入力してください' onSearch={onSearch} />
                 <Button onClick={handleOpen} icon={<FileAddOutlined />}>
                     {' '}
-                    Import ingredient
+                    インポート
                 </Button>
             </div>
-            {importsIngredient.map((item, index) => {
+            {filteredImportsIngredient.map((item, index) => {
                 let ingredientInfo = item.ingredient;
                 return (
                     <>
@@ -122,27 +124,27 @@ const ImportIngredients = () => {
                                 <img className='import-img' src={formatImageLink(ingredientInfo.image_url)} alt='' />
                                 <div className='import-info'>
                                     <p className='title'>{ingredientInfo.ingredient_name}</p>
-                                    <p>Exp :{convertToDate(item.import_exp)} </p>
+                                    <p>消費期限 :{convertToDate(item.import_exp)} </p>
                                     <p>
-                                        Amount:{item.original_amount} {ingredientInfo.ingredient_unit}
+                                    量:{item.original_amount} {ingredientInfo.ingredient_unit}
                                     </p>
                                     <p>
-                                        Remain: {item.remain_amount} {ingredientInfo.ingredient_unit}
+                                    残り: {item.remain_amount} {ingredientInfo.ingredient_unit}
                                     </p>
-                                    <p>Note: {item.note}</p>
-                                    <p>{isExpired(item.import_exp) && <Tag color="red">Expired</Tag>}</p>
+                                    <p>メモ: {item.note}</p>
+                                    <p>{isExpired(item.import_exp) && <Tag color="red">期限切れ</Tag>}</p>
                                 </div>
                             </div>
                             <div className='mt-16'>
                                 <Popconfirm
-                                    title='Throw the ingredient'
-                                    description='Are you sure to throw this ingredient?'
+                                    title='材料を投げる'
+                                    description='この材料を捨ててもいいですか。'
                                     onConfirm={()=>{handleThrowImportIngredient(item._id)}}
-                                    okText='Yes'
-                                    cancelText='No'
+                                    okText='はい'
+                                    cancelText='いいえ'
                                     className='mr-8'
                                 >
-                                <Button>Throw</Button>
+                                <Button>捨てる</Button>
                                 </Popconfirm>
                                 <Button
                                     type='primary'
@@ -150,7 +152,7 @@ const ImportIngredients = () => {
                                         handleOpenTakeModal(item);
                                     }}
                                 >
-                                    Take
+                                    取る
                                 </Button>
                             </div>
                         </div>
@@ -158,7 +160,7 @@ const ImportIngredients = () => {
                     </>
                 );
             })}
-            <Modal title='Import ingredient' open={open} onOk={handleSubmit} onCancel={() => setOpen(false)}>
+            <Modal title='インポート' open={open} onOk={handleSubmit} onCancel={() => setOpen(false)}>
                 <Form
                     name='basic'
                     form={form}
@@ -180,12 +182,12 @@ const ImportIngredients = () => {
                     autoComplete='off'
                 >
                     <Form.Item
-                        label='Ingredient'
+                        label='材料'
                         name='ingredient'
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your ingredient name!',
+                                message: '材料の名前を入力してください!',
                             },
                         ]}
                     >
@@ -196,40 +198,40 @@ const ImportIngredients = () => {
                             onChange={(e) => {
                                 setReload(!reload);
                             }}
-                            placeholder='Select a ingredient'
+                            placeholder='材料を選んでください'
                         ></Select>
                     </Form.Item>
                     <Form.Item
-                        label='Expire Date'
+                        label='消費期限'
                         name='import_exp'
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your recipe name!',
+                                message: 'このフィールドは必須です!',
                             },
                         ]}
                     >
                         <Input type='Date' />
                     </Form.Item>
                     <Form.Item
-                        label='Amount'
+                        label='量'
                         name='original_amount'
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your recipe name!',
+                                message: 'このフィールドは必須です!',
                             },
                         ]}
                     >
                         <Input addonAfter={`${units[form.getFieldsValue()?.ingredient] || ''}`} />
                     </Form.Item>
                     <Form.Item
-                        label='Note'
+                        label='メモ'
                         name='note'
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your recipe name!',
+                                message: 'このフィールドは必須です!',
                             },
                         ]}
                     >
@@ -239,19 +241,19 @@ const ImportIngredients = () => {
             </Modal>
 
             <Modal
-                title={`Lấy ra ${selectedImport?.ingredient?.ingredient_name}`}
+                title={`${selectedImport?.ingredient?.ingredient_name}`}
                 open={takeModal}
                 onOk={handleTakeImport}
                 onCancel={() => setTakeModel(false)}
             >
                 <Form form={takeForm} onFinish={onFinishTakeForm}>
                     <Form.Item
-                        label='Số lượng'
+                        label='数量を取る'
                         name='take_amount'
                         rules={[
                             {
                                 required: true,
-                                message: 'Please input your take amount!',
+                                message: 'このフィールドは必須です!',
                             },
                         ]}
                     >
